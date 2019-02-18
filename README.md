@@ -10,7 +10,8 @@ each individual Page Offset
 2^16 / 2^8 = 2^8 bytes to store each page number
 
 So, 8 Bits (Or 2 Nibbles / Two Hex Chars) to store an Individual
-Page Numbers and the Page offset for an Address
+Page Numbers and 8 bits to store the Page offset for an Address,
+16 bits in total
 
 Can Store 2^8 Page numbers or 256 Pages (2^8 Bytes), each of which takes up
 one 16-bit Address (2^1 Bytes), therefore the page table must be 2^8*2^1
