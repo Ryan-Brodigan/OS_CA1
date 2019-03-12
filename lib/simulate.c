@@ -26,12 +26,13 @@ void simulate(){
 
 	writePageTableToPhysicalMemory(physical_memory);
 	randomWriteToPhysicalMemory(physical_memory);
-	//dumpPhysicalMemoryToDisk(physical_memory);
 
 	//TESTING ADDRESS TRANSLATION
 	printf("Contents at physical address 512: %C\n", physical_memory[512]);
 	physical_memory[0] = (unsigned short) 2;
 	translateAddress(0x0000, physical_memory);
+
+	dumpPhysicalMemoryToDisk(physical_memory);
 
 	//When we are finished, clean up
 	free(physical_memory);
@@ -66,18 +67,18 @@ void writePageTableToPhysicalMemory(unsigned short *physical_memory){
 //Writes the contents of our physical memory out to a file
 void dumpPhysicalMemoryToDisk(unsigned short *physical_memory){
 	FILE * physical_memory_dump_file;
-	physical_memory_dump_file = fopen("../data/physical_memory_dump.txt", "w");
+	physical_memory_dump_file = fopen("/home/ryanb/CA1/OS_CA1/data/physical_memory_dump.txt", "w");
 
 	if(physical_memory_dump_file == NULL){
 		printf("ERROR LOADING PHYSICAL MEMORY DUMP FILE\nExiting...\n");
 		exit(1);
 	}
 
-	fprintf(physical_memory_dump_file, "	ADDRESS	|	FRAME	|	CONTENT\n");
-	fprintf(physical_memory_dump_file, "-----------------------------\n");
+	fprintf(physical_memory_dump_file, "ADDRESS   | FRAME   | CONTENT\n");
+	fprintf(physical_memory_dump_file, "-------------------------------\n");
 
 	for(int i = 0; i < MAX_ADDRESSABLE_BYTES; i++){
-		fprintf(physical_memory_dump_file, "	0x%X	|		%d	|	00\n", i, i >> 8);
+		fprintf(physical_memory_dump_file, "0x%X   | %d   | %C\n", i, i >> 8, physical_memory[i]);
 	}
 
 	fclose(physical_memory_dump_file);

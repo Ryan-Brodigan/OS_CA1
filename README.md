@@ -1,6 +1,10 @@
 # OS_CA1
 Ryan Brodigan, 4th Year Operating Systems CA1
 
+# Make and Run the App
+From the project's root directory enter the command "make" to compile the source code into object code
+and then type the command "./dist/main" to launch the application
+
 # Technical Overview
 16-Bit System (2^16 Addressable Bytes = 65536)
 
