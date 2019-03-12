@@ -10,9 +10,10 @@ each individual Page Offset
 2^16 / 2^8 = 2^8 bytes to store each page number
 
 So, 8 Bits (Or 2 Nibbles / Two Hex Chars) to store an Individual
-Page Numbers and 8 bits to store the Page offset for an Address,
+Page Number and 8 bits to store the Page offset for an Address,
 16 bits in total
 
 Can Store 2^8 Page numbers or 256 Pages (2^8 Bytes), each of which takes up
-one 16-bit Address (2^1 Bytes), therefore the page table must be 2^8*2^1
-or 2^9 bytes (4096 bytes) in size or 4 KiB
+one 16-bit Address (2(^1) Bytes), so our Page table will be 512 bytes (256 * 2)
+in size, by storing this in our physical memory starting at address 0x0000, the
+Page Table for our "Process" will take up the first two Frames of our Physical Memory
