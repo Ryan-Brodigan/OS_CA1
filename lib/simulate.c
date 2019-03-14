@@ -4,12 +4,12 @@
 
 #define MAX_ADDRESSABLE_BYTES 65536
 #define ADDRESS_SIZE_BYTES 2
-#define PAGE_SIZE_BYTES 256
 
 //Function declarations
 void translateAddress(unsigned short virtual_address, unsigned short *physical_memory);
 void writePageTableToPhysicalMemory(unsigned short *physical_memory);
 void dumpPhysicalMemoryToDisk(unsigned short *physical_memory);
+void dumpPageTableToDisk(unsigned short *physical_memory);
 unsigned short compilePFNWithOffset(unsigned short pfn, unsigned short offset);
 unsigned short calculateAddressOffset(unsigned short address);
 void randomWriteToPhysicalMemory(unsigned short *physical_memory);
@@ -24,15 +24,13 @@ void simulate(){
 	// Allocate a chunk of memory that represents the physical memory of our system
 	unsigned short *physical_memory = malloc(MAX_ADDRESSABLE_BYTES);
 
+	//Steps that are run on application startup
 	writePageTableToPhysicalMemory(physical_memory);
 	randomWriteToPhysicalMemory(physical_memory);
-
-	//TESTING ADDRESS TRANSLATION
-	printf("Contents at physical address 512: %C\n", physical_memory[512]);
-	physical_memory[0] = (unsigned short) 2;
-	translateAddress(0x0000, physical_memory);
-
 	dumpPhysicalMemoryToDisk(physical_memory);
+	dumpPageTableToDisk(physical_memory);
+
+	//TODO LOOP THAT ALLOWS USER TO CHECK CONTENTS OF VIRTUAL ADDRESS
 
 	//When we are finished, clean up
 	free(physical_memory);
@@ -40,6 +38,7 @@ void simulate(){
 
 //Takes a virtual address and the physical memory address space and
 //translates the virtual address to it's corresponding physical address
+//printing it's contents in the process
 void translateAddress(unsigned short virtual_address, unsigned short *physical_memory){
 	//Step 1: Split virtual address into VPN + Offset
 	unsigned short vpn = virtual_address >> 8;
@@ -62,11 +61,17 @@ void writePageTableToPhysicalMemory(unsigned short *physical_memory){
 	//First 512 bytes (2 Frames) of our Physical Memory are reserved by the Page Table for our 'process'
 	//Given this, virtual address 0x0000 will actually map to the first available address in physical memory,
 	//which will be at the start of frame 2
+	for(int i = 0; i < 256; i++){
+		physical_memory[i*2] = (i+2);
+		//TODO Generate Page Table Entry
+		physical_memory[(i*2)+1] = 0x00000000;
+	}
 }
 
 //Writes the contents of our physical memory out to a file
 void dumpPhysicalMemoryToDisk(unsigned short *physical_memory){
 	FILE * physical_memory_dump_file;
+	//TODO MAKE THIS RELATIVE
 	physical_memory_dump_file = fopen("/home/ryanb/CA1/OS_CA1/data/physical_memory_dump.txt", "w");
 
 	if(physical_memory_dump_file == NULL){
@@ -82,6 +87,27 @@ void dumpPhysicalMemoryToDisk(unsigned short *physical_memory){
 	}
 
 	fclose(physical_memory_dump_file);
+}
+
+//Dumps the content of our "process'" Page Table
+void dumpPageTableToDisk(unsigned short *physical_memory){
+	FILE * page_table_dump_file;
+	//TODO MAKE THIS RELATIVE
+	page_table_dump_file = fopen("/home/ryanb/CA1/OS_CA1/data/page_table_dump.txt", "w");
+
+	if(page_table_dump_file == NULL){
+		printf("ERROR LOADING PAGE TABLE DUMP FILE\nExiting...\n");
+		exit(1);
+	}
+
+	fprintf(page_table_dump_file, "		VPN		|		PFN		|	Page Table Entry\n");
+	fprintf(page_table_dump_file, "-----------------------------------------\n");
+
+	for(int i = 0 ; i < 256; i++){
+		fprintf(page_table_dump_file, "		%d	|		%d		|	0x%X\n", i, physical_memory[i*2], physical_memory[(i*2)+1]);
+	}
+
+	fclose(page_table_dump_file);
 }
 
 //Calculates the address offset for a given address
