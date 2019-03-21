@@ -6,6 +6,8 @@
 #define MAX_ADDRESSABLE_BYTES 65536
 #define ADDRESS_SIZE_BYTES 2
 #define PAGE_AND_FRAME_SIZE_BYTES 256
+#define INVALID_FRAME_NUMBER_ONE 256
+#define INVALID_FRAME_NUMBER_TWO 257
 
 //Function declarations
 void translateAddress(unsigned short virtual_address, unsigned short *physical_memory);
@@ -80,10 +82,10 @@ void writePageTableToPhysicalMemory(unsigned short *physical_memory, unsigned sh
 	}
 
 	//TODO Write proper Page Table entries
-	//Store entries for pages not in Physical Memory
-	physical_memory[framesOccupied*2] = framesOccupied + 2;
+	//Store entries for pages not mapped to a valid PFN
+	physical_memory[framesOccupied*2] = INVALID_FRAME_NUMBER_ONE;
 	physical_memory[(framesOccupied*2)+1] = 0x00000000;
-	physical_memory[((framesOccupied+1)*2)] = (framesOccupied + 2) + 1;
+	physical_memory[((framesOccupied+1)*2)] = INVALID_FRAME_NUMBER_TWO;
 	physical_memory[((framesOccupied+1)*2)+1] = 0x00000000;
 }
 
@@ -98,11 +100,11 @@ void dumpPhysicalMemoryToDisk(unsigned short *physical_memory){
 		exit(1);
 	}
 
-	fprintf(physical_memory_dump_file, "ADDRESS   | FRAME   | CONTENT\n");
+  fprintf(physical_memory_dump_file, "ADDRESS  |  FRAME	| CONTENT\n");
 	fprintf(physical_memory_dump_file, "-------------------------------\n");
 
 	for(int i = 0; i < MAX_ADDRESSABLE_BYTES; i++){
-		fprintf(physical_memory_dump_file, "0x%X   | %d   | %C\n", i, i >> 8, physical_memory[i]);
+		fprintf(physical_memory_dump_file, "0x%04X   | %4d   | %C\n", i, i >> 8, physical_memory[i]);
 	}
 
 	fclose(physical_memory_dump_file);
@@ -119,12 +121,12 @@ void dumpPageTableToDisk(unsigned short *physical_memory){
 		exit(1);
 	}
 
-	fprintf(page_table_dump_file, "		VPN		|		PFN		|	Page Table Entry\n");
+	fprintf(page_table_dump_file, "		VPN		|		PFN			|	Page Table Entry\n");
 	fprintf(page_table_dump_file, "-----------------------------------------\n");
 
 	for(int i = 0 ; i < 256; i++){
 		if(physical_memory[i*2] != 0){
-			fprintf(page_table_dump_file, "		%d	|		%d		|	0x%X\n", i, physical_memory[i*2], physical_memory[(i*2)+1]);
+			fprintf(page_table_dump_file, "		%4d	| %4d			|	0x%X\n", i, physical_memory[i*2], physical_memory[(i*2)+1]);
 		}
 	}
 
