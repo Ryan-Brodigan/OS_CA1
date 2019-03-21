@@ -1,13 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <math.h>
 
 #define MAX_ADDRESSABLE_BYTES 65536
 #define ADDRESS_SIZE_BYTES 2
+#define PAGE_AND_FRAME_SIZE_BYTES 256
 
 //Function declarations
 void translateAddress(unsigned short virtual_address, unsigned short *physical_memory);
-void writePageTableToPhysicalMemory(unsigned short *physical_memory);
+void writePageTableToPhysicalMemory(unsigned short *physical_memory, unsigned short bytesOfWrittenData);
 void dumpPhysicalMemoryToDisk(unsigned short *physical_memory);
 void dumpPageTableToDisk(unsigned short *physical_memory);
 unsigned short compilePFNWithOffset(unsigned short pfn, unsigned short offset);
@@ -25,12 +27,16 @@ void simulate(){
 	unsigned short *physical_memory = malloc(MAX_ADDRESSABLE_BYTES);
 
 	//Steps that are run on application startup
-	writePageTableToPhysicalMemory(physical_memory);
 	randomWriteToPhysicalMemory(physical_memory);
 	dumpPhysicalMemoryToDisk(physical_memory);
 	dumpPageTableToDisk(physical_memory);
 
 	//TODO LOOP THAT ALLOWS USER TO CHECK CONTENTS OF VIRTUAL ADDRESS
+	//4 Possible outcomes to this loop:
+	// 1. We are able to translate the VPN to a PFN and display the contents
+	// 2. We need to swap the frame into physical_memory from a file
+	// 3. The memory does not belong to our process
+	// 4. Invalid entry, enter again
 
 	//When we are finished, clean up
 	free(physical_memory);
@@ -48,7 +54,8 @@ void translateAddress(unsigned short virtual_address, unsigned short *physical_m
 
 	//Step 2: Translate the VPN to a Physical Frame Number, using our Page Table
 	//Use the entry in our page table to do error checking
-	unsigned short pfn = physical_memory[vpn];
+	//SWAPPING WILL BE CAUSED HERE
+	unsigned short pfn = physical_memory[vpn*2];
 
 	//Step 3: Add Offset to PFN, print the contents of the resulting address
 	unsigned short physical_address = compilePFNWithOffset(pfn, offset);
@@ -57,15 +64,27 @@ void translateAddress(unsigned short virtual_address, unsigned short *physical_m
 }
 
 //Writes the contents of the Page Table for our single process to memory
-void writePageTableToPhysicalMemory(unsigned short *physical_memory){
+void writePageTableToPhysicalMemory(unsigned short *physical_memory, unsigned short bytesOfWrittenData){
+
+	//Calculate how many frames our process is occupying and then generate the Page Table entries
+	//Based on this information, write the appropriate entries to our Page Table
+	unsigned short framesOccupied = floor(bytesOfWrittenData / PAGE_AND_FRAME_SIZE_BYTES);
+
 	//First 512 bytes (2 Frames) of our Physical Memory are reserved by the Page Table for our 'process'
 	//Given this, virtual address 0x0000 will actually map to the first available address in physical memory,
 	//which will be at the start of frame 2
-	for(int i = 0; i < 256; i++){
+	for(int i = 0; i < framesOccupied; i++){
 		physical_memory[i*2] = (i+2);
 		//TODO Generate Page Table Entry
 		physical_memory[(i*2)+1] = 0x00000000;
 	}
+
+	//TODO Write proper Page Table entries
+	//Store entries for pages not in Physical Memory
+	physical_memory[framesOccupied*2] = framesOccupied + 2;
+	physical_memory[(framesOccupied*2)+1] = 0x00000000;
+	physical_memory[((framesOccupied+1)*2)] = (framesOccupied + 2) + 1;
+	physical_memory[((framesOccupied+1)*2)+1] = 0x00000000;
 }
 
 //Writes the contents of our physical memory out to a file
@@ -104,7 +123,9 @@ void dumpPageTableToDisk(unsigned short *physical_memory){
 	fprintf(page_table_dump_file, "-----------------------------------------\n");
 
 	for(int i = 0 ; i < 256; i++){
-		fprintf(page_table_dump_file, "		%d	|		%d		|	0x%X\n", i, physical_memory[i*2], physical_memory[(i*2)+1]);
+		if(physical_memory[i*2] != 0){
+			fprintf(page_table_dump_file, "		%d	|		%d		|	0x%X\n", i, physical_memory[i*2], physical_memory[(i*2)+1]);
+		}
 	}
 
 	fclose(page_table_dump_file);
@@ -128,8 +149,6 @@ void randomWriteToPhysicalMemory(unsigned short *physical_memory){
 	//Generate random number between 2048-20480, the bytes of data we will write to our memory
 	unsigned short randomBytes = randomShortInRange(2048, 20480);
 
-	//Choose a random
-
 	//Randomly write the aforementioned amount of data to our memory, using a loop
 	//We will randomly write characters, which are 1 byte each, so loop for the amount of
 	//bytes we randomly generated
@@ -140,6 +159,9 @@ void randomWriteToPhysicalMemory(unsigned short *physical_memory){
 		//Assign the character to our physical memory address
 		physical_memory[i] = randomCharCode;
 	}
+
+	//Write the contents for the process' Page Table to Physical Memory, for the pages used by our process
+	writePageTableToPhysicalMemory(physical_memory, randomBytes);
 }
 
 //Returns a random unsigned short between the specified min and max values
