@@ -84,14 +84,20 @@ void translateAddress(unsigned short virtual_address, unsigned short *physical_m
 	//SWAPPING WILL BE CAUSED HERE
 	unsigned short pfn = physical_memory[vpn*2];
 
-	printf("Corresponding PFN: %d\n", pfn);
+	//Check for invalid PFN, indicating memory our process does not have access to
+	if(pfn == 0){
+		printf("Cannot print content's of physical address, as it does not belong to this process!\n\n");
+	}
+	else{
+		printf("Corresponding PFN: %d\n", pfn);
 
-	//Step 3: Add Offset to PFN, print the contents of the resulting address
-	unsigned short physical_address = compilePFNWithOffset(pfn, offset);
+		//Step 3: Add Offset to PFN, print the contents of the resulting address
+		unsigned short physical_address = compilePFNWithOffset(pfn, offset);
 
-	printf("Translated Physical Address: 0x%X\n", physical_address);
+		printf("Translated Physical Address: 0x%X\n", physical_address);
 
-	printf("Character at physical address: %C\n\n", physical_memory[physical_address]);
+		printf("Character at physical address: %C\n\n", physical_memory[physical_address]);
+	}
 }
 
 //Writes the contents of the Page Table for our single process to memory
