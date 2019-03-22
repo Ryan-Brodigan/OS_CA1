@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
+#include <stdbool.h>
 
 #define MAX_ADDRESSABLE_BYTES 65536
 #define ADDRESS_SIZE_BYTES 2
@@ -28,17 +29,32 @@ void simulate(){
 	// Allocate a chunk of memory that represents the physical memory of our system
 	unsigned short *physical_memory = malloc(MAX_ADDRESSABLE_BYTES);
 
+	if(physical_memory == NULL){
+		printf("ERROR ALLOCATING PHYSICAL MEMORY\nExiting...");
+		exit(1);
+	}
+
+	printf("\nPRELIMINARY STEPS\n\n");
+
 	//Steps that are run on application startup
 	randomWriteToPhysicalMemory(physical_memory);
 	dumpPhysicalMemoryToDisk(physical_memory);
 	dumpPageTableToDisk(physical_memory);
 
-	//TODO LOOP THAT ALLOWS USER TO CHECK CONTENTS OF VIRTUAL ADDRESS
 	//4 Possible outcomes to this loop:
 	// 1. We are able to translate the VPN to a PFN and display the contents
 	// 2. We need to swap the frame into physical_memory from a file
 	// 3. The memory does not belong to our process
 	// 4. Invalid entry, enter again
+	bool notDone = true;
+
+	printf("\nENTERING USER ENTRY LOOP\n\n");
+
+	do{
+		printf("Enter a 16-Bit Hexadecimal Address to display it's contents in Physical Memory (If possible): ");
+		unsigned short userEnteredAddress = scanf("%hX", &userEnteredAddress);
+		translateAddress(userEnteredAddress, physical_memory);
+	}while(notDone);
 
 	//When we are finished, clean up
 	free(physical_memory);
@@ -68,9 +84,13 @@ void translateAddress(unsigned short virtual_address, unsigned short *physical_m
 //Writes the contents of the Page Table for our single process to memory
 void writePageTableToPhysicalMemory(unsigned short *physical_memory, unsigned short bytesOfWrittenData){
 
+	printf("Writing Page Table to Physical Memory...\n");
+
 	//Calculate how many frames our process is occupying and then generate the Page Table entries
 	//Based on this information, write the appropriate entries to our Page Table
 	unsigned short framesOccupied = floor(bytesOfWrittenData / PAGE_AND_FRAME_SIZE_BYTES);
+
+	printf("Writing Page Table Entries for %d Frames (Excluding Swapping Examples)...\n", framesOccupied);
 
 	//First 512 bytes (2 Frames) of our Physical Memory are reserved by the Page Table for our 'process'
 	//Given this, virtual address 0x0000 will actually map to the first available address in physical memory,
@@ -78,19 +98,26 @@ void writePageTableToPhysicalMemory(unsigned short *physical_memory, unsigned sh
 	for(int i = 0; i < framesOccupied; i++){
 		physical_memory[i*2] = (i+2);
 		//TODO Generate Page Table Entry
-		physical_memory[(i*2)+1] = 0x00000000;
+		physical_memory[(i*2)+1] = 0x10;
 	}
+
+	printf("Writing Page Table Entries for Swapping Examples...\n");
 
 	//TODO Write proper Page Table entries
 	//Store entries for pages not mapped to a valid PFN
 	physical_memory[framesOccupied*2] = INVALID_FRAME_NUMBER_ONE;
-	physical_memory[(framesOccupied*2)+1] = 0x00000000;
+	physical_memory[(framesOccupied*2)+1] = 0x0;
 	physical_memory[((framesOccupied+1)*2)] = INVALID_FRAME_NUMBER_TWO;
-	physical_memory[((framesOccupied+1)*2)+1] = 0x00000000;
+	physical_memory[((framesOccupied+1)*2)+1] = 0x0;
+
+	printf("Done...\n\n");
 }
 
 //Writes the contents of our physical memory out to a file
 void dumpPhysicalMemoryToDisk(unsigned short *physical_memory){
+
+	printf("Dumping contents of Physical Memory to disk...\n");
+
 	FILE * physical_memory_dump_file;
 	//TODO MAKE THIS RELATIVE
 	physical_memory_dump_file = fopen("/home/ryanb/CA1/OS_CA1/data/physical_memory_dump.txt", "w");
@@ -107,11 +134,16 @@ void dumpPhysicalMemoryToDisk(unsigned short *physical_memory){
 		fprintf(physical_memory_dump_file, "0x%04X   | %4d   | %C\n", i, i >> 8, physical_memory[i]);
 	}
 
+	printf("Done...\n\n");
+
 	fclose(physical_memory_dump_file);
 }
 
 //Dumps the content of our "process'" Page Table
 void dumpPageTableToDisk(unsigned short *physical_memory){
+
+	printf("Dumping the contents of the Page Table to disk...\n");
+
 	FILE * page_table_dump_file;
 	//TODO MAKE THIS RELATIVE
 	page_table_dump_file = fopen("/home/ryanb/CA1/OS_CA1/data/page_table_dump.txt", "w");
@@ -129,6 +161,8 @@ void dumpPageTableToDisk(unsigned short *physical_memory){
 			fprintf(page_table_dump_file, "		%4d	| %4d			|	0x%X\n", i, physical_memory[i*2], physical_memory[(i*2)+1]);
 		}
 	}
+
+	printf("Done...\n\n");
 
 	fclose(page_table_dump_file);
 }
@@ -148,8 +182,12 @@ unsigned short compilePFNWithOffset(unsigned short pfn, unsigned short offset){
 //Initialize the physical memory, write random amount of bytes to random addresses
 void randomWriteToPhysicalMemory(unsigned short *physical_memory){
 
+	printf("Randomly writing data to physical memory...\n");
+
 	//Generate random number between 2048-20480, the bytes of data we will write to our memory
 	unsigned short randomBytes = randomShortInRange(2048, 20480);
+
+	printf("Writing %d Bytes of data...\n", randomBytes);
 
 	//Randomly write the aforementioned amount of data to our memory, using a loop
 	//We will randomly write characters, which are 1 byte each, so loop for the amount of
@@ -161,6 +199,8 @@ void randomWriteToPhysicalMemory(unsigned short *physical_memory){
 		//Assign the character to our physical memory address
 		physical_memory[i] = randomCharCode;
 	}
+
+	printf("Done...\n\n");
 
 	//Write the contents for the process' Page Table to Physical Memory, for the pages used by our process
 	writePageTableToPhysicalMemory(physical_memory, randomBytes);
