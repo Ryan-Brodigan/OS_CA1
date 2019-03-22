@@ -23,6 +23,7 @@ void randomWriteToPhysicalMemory(unsigned short *physical_memory);
 unsigned short randomShortInRange(unsigned short min, unsigned short max);
 void randomPrintPageTableEntry(unsigned short *physical_memory);
 void printPageTableEntry(unsigned short *physical_memory, unsigned short pageNumber);
+void swapFrameIntoMemory(unsigned short* physical_memory, unsigned short pfn, unsigned short vpn);
 
 //Main method, entry point
 void simulate(){
@@ -58,7 +59,7 @@ void simulate(){
 	do{
 		printf("Enter a 16-Bit Hexadecimal Address to display it's contents in Physical Memory (If possible): ");
 		unsigned short userEnteredAddress;
-		userEnteredAddress = scanf("%hX", &userEnteredAddress);
+		scanf("%hx", &userEnteredAddress);
 		translateAddress(userEnteredAddress, physical_memory);
 	}while(notDone);
 
@@ -92,8 +93,12 @@ void translateAddress(unsigned short virtual_address, unsigned short *physical_m
 	else{
 		printf("Corresponding PFN: %d\n", pfn);
 
+		//SWAPPING LOGIC
 		if((pageTableEntry >> 4) == 0){
 			printf("Present Bit is set to 0, Swapping Frame into Physical Memory...\n");
+
+			//Swap the missing Frame into memory
+			swapFrameIntoMemory(physical_memory, pfn, vpn);
 		}
 
 		//Step 3: Add Offset to PFN, print the contents of the resulting address
@@ -101,9 +106,10 @@ void translateAddress(unsigned short virtual_address, unsigned short *physical_m
 
 		printf("Translated Physical Address: 0x%X\n", physical_address);
 
+		//If Accessed bit is set to 0, set to 1
 		if((pageTableEntry & ACCESSED_BIT_BITMASK) == 0){
-				printf("Setting Accessed Bit for Page Entry to 1...\n");
-				physical_memory[(vpn*2)+1] = pageTableEntry | ACCESSED_BIT_BITMASK;
+				printf("Setting Accessed Bit for Page Table Entry to 1...\n");
+				physical_memory[(vpn*2)+1] = (pageTableEntry | ACCESSED_BIT_BITMASK);
 				dumpPageTableToDisk(physical_memory);
 		}
 
@@ -135,9 +141,9 @@ void writePageTableToPhysicalMemory(unsigned short *physical_memory, unsigned sh
 	printf("Writing Page Table Entries for Swapping Examples...\n");
 
 	//Store entries for pages not mapped to a valid PFN
-	physical_memory[framesOccupied*2] = INVALID_FRAME_NUMBER_ONE;
+	physical_memory[framesOccupied*2] = framesOccupied + 2;
 	physical_memory[(framesOccupied*2)+1] = 0x0;
-	physical_memory[((framesOccupied+1)*2)] = INVALID_FRAME_NUMBER_TWO;
+	physical_memory[((framesOccupied+1)*2)] = framesOccupied + 3;
 	physical_memory[((framesOccupied+1)*2)+1] = 0x0;
 
 	printf("Done...\n\n");
@@ -307,4 +313,19 @@ void printPageTableEntry(unsigned short *physical_memory, unsigned short pageNum
 	else{
 		printf("Page Table Entry does not point to a valid PFN\n");
 	}
+}
+
+void swapFrameIntoMemory(unsigned short *physical_memory, unsigned short pfn, unsigned short vpn){
+
+	//Generate Random Bytes in our Hypothetical "Frame", load this into our Physical Memory
+	unsigned short randomBytes = randomShortInRange(1, 256);
+
+	for(int j = 0; j < randomBytes; j++){
+		physical_memory[(PAGE_AND_FRAME_SIZE_BYTES*pfn)+j] = randomShortInRange(33, 126);
+	}
+
+	//Update Page Table
+	printf("Setting Present Bit for Page Table Entry to 1...\n");
+	physical_memory[(vpn*2)+1] = ((physical_memory[(vpn*2)+1]) | PRESENT_BIT_BITMASK);
+	dumpPageTableToDisk(physical_memory);
 }
