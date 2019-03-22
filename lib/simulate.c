@@ -97,6 +97,9 @@ void translateAddress(unsigned short virtual_address, unsigned short *physical_m
 
 			//Swap the missing Frame into memory
 			swapFrameIntoMemory(physical_memory, pfn, vpn);
+
+			//Update Page Table Entry var
+			pageTableEntry = physical_memory[(vpn*2)+1];
 		}
 
 		//Step 3: Add Offset to PFN, print the contents of the resulting address

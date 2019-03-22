@@ -1,6 +1,6 @@
 		VPN	  |		PFN			|	Page Table Entry
 -----------------------------------------
-		   0	|    2			|	Present: true Accessed: true
+		   0	|    2			|	Present: true Accessed: false
 		   1	|    3			|	Present: true Accessed: false
 		   2	|    4			|	Present: true Accessed: false
 		   3	|    5			|	Present: true Accessed: false
@@ -13,26 +13,5 @@
 		  10	|   12			|	Present: true Accessed: false
 		  11	|   13			|	Present: true Accessed: false
 		  12	|   14			|	Present: true Accessed: false
-		  13	|   15			|	Present: true Accessed: false
-		  14	|   16			|	Present: true Accessed: false
-		  15	|   17			|	Present: true Accessed: false
-		  16	|   18			|	Present: true Accessed: false
-		  17	|   19			|	Present: true Accessed: false
-		  18	|   20			|	Present: true Accessed: false
-		  19	|   21			|	Present: true Accessed: false
-		  20	|   22			|	Present: true Accessed: false
-		  21	|   23			|	Present: true Accessed: false
-		  22	|   24			|	Present: true Accessed: false
-		  23	|   25			|	Present: true Accessed: false
-		  24	|   26			|	Present: true Accessed: false
-		  25	|   27			|	Present: true Accessed: false
-		  26	|   28			|	Present: true Accessed: false
-		  27	|   29			|	Present: true Accessed: false
-		  28	|   30			|	Present: true Accessed: false
-		  29	|   31			|	Present: true Accessed: false
-		  30	|   32			|	Present: true Accessed: false
-		  31	|   33			|	Present: true Accessed: false
-		  32	|   34			|	Present: true Accessed: false
-		  33	|   35			|	Present: true Accessed: false
-		  34	|   36			|	Present: false Accessed: false
-		  35	|   37			|	Present: false Accessed: false
+		  13	|   15			|	Present: true Accessed: true
+		  14	|   16			|	Present: false Accessed: false
