@@ -83,6 +83,7 @@ void translateAddress(unsigned short virtual_address, unsigned short *physical_m
 	//Use the entry in our page table to do error checking
 	//SWAPPING WILL BE CAUSED HERE
 	unsigned short pfn = physical_memory[vpn*2];
+	unsigned short pageTableEntry = physical_memory[(vpn*2)+1];
 
 	//Check for invalid PFN, indicating memory our process does not have access to
 	if(pfn == 0){
@@ -91,10 +92,20 @@ void translateAddress(unsigned short virtual_address, unsigned short *physical_m
 	else{
 		printf("Corresponding PFN: %d\n", pfn);
 
+		if((pageTableEntry >> 4) == 0){
+			printf("Present Bit is set to 0, Swapping Frame into Physical Memory...\n");
+		}
+
 		//Step 3: Add Offset to PFN, print the contents of the resulting address
 		unsigned short physical_address = compilePFNWithOffset(pfn, offset);
 
 		printf("Translated Physical Address: 0x%X\n", physical_address);
+
+		if((pageTableEntry & ACCESSED_BIT_BITMASK) == 0){
+				printf("Setting Accessed Bit for Page Entry to 1...\n");
+				physical_memory[(vpn*2)+1] = pageTableEntry | ACCESSED_BIT_BITMASK;
+				dumpPageTableToDisk(physical_memory);
+		}
 
 		printf("Character at physical address: %C\n\n", physical_memory[physical_address]);
 	}
