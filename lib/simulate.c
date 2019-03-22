@@ -7,8 +7,6 @@
 #define MAX_ADDRESSABLE_BYTES 65536
 #define ADDRESS_SIZE_BYTES 2
 #define PAGE_AND_FRAME_SIZE_BYTES 256
-#define INVALID_FRAME_NUMBER_ONE 256
-#define INVALID_FRAME_NUMBER_TWO 257
 #define PRESENT_BIT_BITMASK 0x0010
 #define ACCESSED_BIT_BITMASK 0x0001
 
@@ -155,7 +153,6 @@ void dumpPhysicalMemoryToDisk(unsigned short *physical_memory){
 	printf("Dumping contents of Physical Memory to disk...\n");
 
 	FILE * physical_memory_dump_file;
-	//TODO MAKE THIS RELATIVE
 	physical_memory_dump_file = fopen("data/physical_memory_dump.txt", "w");
 
 	if(physical_memory_dump_file == NULL){
@@ -181,7 +178,6 @@ void dumpPageTableToDisk(unsigned short *physical_memory){
 	printf("Dumping the contents of the Page Table to disk...\n");
 
 	FILE * page_table_dump_file;
-	//TODO MAKE THIS RELATIVE
 	page_table_dump_file = fopen("data/page_table_dump.txt", "w");
 
 	if(page_table_dump_file == NULL){
