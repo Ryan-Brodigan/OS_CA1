@@ -21,6 +21,8 @@ unsigned short compilePFNWithOffset(unsigned short pfn, unsigned short offset);
 unsigned short calculateAddressOffset(unsigned short address);
 void randomWriteToPhysicalMemory(unsigned short *physical_memory);
 unsigned short randomShortInRange(unsigned short min, unsigned short max);
+void randomPrintPageTableEntry(unsigned short *physical_memory);
+void printPageTableEntry(unsigned short *physical_memory, unsigned short pageNumber);
 
 //Main method, entry point
 void simulate(){
@@ -42,6 +44,7 @@ void simulate(){
 	randomWriteToPhysicalMemory(physical_memory);
 	dumpPhysicalMemoryToDisk(physical_memory);
 	dumpPageTableToDisk(physical_memory);
+	randomPrintPageTableEntry(physical_memory);
 
 	//4 Possible outcomes to this loop:
 	// 1. We are able to translate the VPN to a PFN and display the contents
@@ -163,7 +166,7 @@ void dumpPageTableToDisk(unsigned short *physical_memory){
 		exit(1);
 	}
 
-	fprintf(page_table_dump_file, "		VPN		|		PFN			|	Page Table Entry\n");
+	fprintf(page_table_dump_file, "		VPN	  |		PFN			|	Page Table Entry\n");
 	fprintf(page_table_dump_file, "-----------------------------------------\n");
 
 	for(int i = 0 ; i < 256; i++){
@@ -243,4 +246,48 @@ void randomWriteToPhysicalMemory(unsigned short *physical_memory){
 //Returns a random unsigned short between the specified min and max values
 unsigned short randomShortInRange(unsigned short min, unsigned short max){
 	return ((rand() % (max - min)) + min);
+}
+
+//Randomly prints an entry out of the first 8 entries in our process' Page Table
+void randomPrintPageTableEntry(unsigned short *physical_memory){
+
+	printf("Random Page Table Entry Example:\n\n");
+	printf("   VPN  |   PFN    | Page Table Entry\n");
+	printf("-----------------------------------------\n");
+
+	printPageTableEntry(physical_memory, randomShortInRange(0,7));
+}
+
+
+//Prints the Page Table entry for the given Page Number
+void printPageTableEntry(unsigned short *physical_memory, unsigned short pageNumber){
+	unsigned short pfn = physical_memory[pageNumber*2];
+	unsigned short pageTableEntry = physical_memory[(pageNumber*2)+1];
+
+	if(pfn != 0){
+		printf("   %3d 	| %4d     | ", pageNumber, pfn);
+
+   	//Check Status of Present Bit
+		bool present = false;
+
+		if(((pageTableEntry & PRESENT_BIT_BITMASK) >> 4) == 1){
+			present = true;
+		}
+
+		printf("Present: ");
+		printf((present ? "true" : "false"));
+
+		//Check Status of Accessed Bit
+		bool accessed = false;
+
+		if((pageTableEntry & ACCESSED_BIT_BITMASK) == 1){
+			accessed = true;
+		}
+
+		printf(" Accessed: ");
+		printf((accessed ? "true\n" : "false\n"));
+	}
+	else{
+		printf("Page Table Entry does not point to a valid PFN\n");
+	}
 }

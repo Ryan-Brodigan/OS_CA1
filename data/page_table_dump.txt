@@ -1,4 +1,4 @@
-		VPN		|		PFN			|	Page Table Entry
+		VPN	  |		PFN			|	Page Table Entry
 -----------------------------------------
 		   0	|    2			|	Present: true Accessed: false
 		   1	|    3			|	Present: true Accessed: false
@@ -17,65 +17,5 @@
 		  14	|   16			|	Present: true Accessed: false
 		  15	|   17			|	Present: true Accessed: false
 		  16	|   18			|	Present: true Accessed: false
-		  17	|   19			|	Present: true Accessed: false
-		  18	|   20			|	Present: true Accessed: false
-		  19	|   21			|	Present: true Accessed: false
-		  20	|   22			|	Present: true Accessed: false
-		  21	|   23			|	Present: true Accessed: false
-		  22	|   24			|	Present: true Accessed: false
-		  23	|   25			|	Present: true Accessed: false
-		  24	|   26			|	Present: true Accessed: false
-		  25	|   27			|	Present: true Accessed: false
-		  26	|   28			|	Present: true Accessed: false
-		  27	|   29			|	Present: true Accessed: false
-		  28	|   30			|	Present: true Accessed: false
-		  29	|   31			|	Present: true Accessed: false
-		  30	|   32			|	Present: true Accessed: false
-		  31	|   33			|	Present: true Accessed: false
-		  32	|   34			|	Present: true Accessed: false
-		  33	|   35			|	Present: true Accessed: false
-		  34	|   36			|	Present: true Accessed: false
-		  35	|   37			|	Present: true Accessed: false
-		  36	|   38			|	Present: true Accessed: false
-		  37	|   39			|	Present: true Accessed: false
-		  38	|   40			|	Present: true Accessed: false
-		  39	|   41			|	Present: true Accessed: false
-		  40	|   42			|	Present: true Accessed: false
-		  41	|   43			|	Present: true Accessed: false
-		  42	|   44			|	Present: true Accessed: false
-		  43	|   45			|	Present: true Accessed: false
-		  44	|   46			|	Present: true Accessed: false
-		  45	|   47			|	Present: true Accessed: false
-		  46	|   48			|	Present: true Accessed: false
-		  47	|   49			|	Present: true Accessed: false
-		  48	|   50			|	Present: true Accessed: false
-		  49	|   51			|	Present: true Accessed: false
-		  50	|   52			|	Present: true Accessed: false
-		  51	|   53			|	Present: true Accessed: false
-		  52	|   54			|	Present: true Accessed: false
-		  53	|   55			|	Present: true Accessed: false
-		  54	|   56			|	Present: true Accessed: false
-		  55	|   57			|	Present: true Accessed: false
-		  56	|   58			|	Present: true Accessed: false
-		  57	|   59			|	Present: true Accessed: false
-		  58	|   60			|	Present: true Accessed: false
-		  59	|   61			|	Present: true Accessed: false
-		  60	|   62			|	Present: true Accessed: false
-		  61	|   63			|	Present: true Accessed: false
-		  62	|   64			|	Present: true Accessed: false
-		  63	|   65			|	Present: true Accessed: false
-		  64	|   66			|	Present: true Accessed: false
-		  65	|   67			|	Present: true Accessed: false
-		  66	|   68			|	Present: true Accessed: false
-		  67	|   69			|	Present: true Accessed: false
-		  68	|   70			|	Present: true Accessed: false
-		  69	|   71			|	Present: true Accessed: false
-		  70	|   72			|	Present: true Accessed: false
-		  71	|   73			|	Present: true Accessed: false
-		  72	|   74			|	Present: true Accessed: false
-		  73	|   75			|	Present: true Accessed: false
-		  74	|   76			|	Present: true Accessed: false
-		  75	|   77			|	Present: true Accessed: false
-		  76	|   78			|	Present: true Accessed: false
-		  77	|  256			|	Present: false Accessed: false
-		  78	|  257			|	Present: false Accessed: false
+		  17	|  256			|	Present: false Accessed: false
+		  18	|  257			|	Present: false Accessed: false
