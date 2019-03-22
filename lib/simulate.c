@@ -156,7 +156,7 @@ void dumpPhysicalMemoryToDisk(unsigned short *physical_memory){
 
 	FILE * physical_memory_dump_file;
 	//TODO MAKE THIS RELATIVE
-	physical_memory_dump_file = fopen("/home/ryanb/CA1/OS_CA1/data/physical_memory_dump.txt", "w");
+	physical_memory_dump_file = fopen("data/physical_memory_dump.txt", "w");
 
 	if(physical_memory_dump_file == NULL){
 		printf("ERROR LOADING PHYSICAL MEMORY DUMP FILE\nExiting...\n");
@@ -182,7 +182,7 @@ void dumpPageTableToDisk(unsigned short *physical_memory){
 
 	FILE * page_table_dump_file;
 	//TODO MAKE THIS RELATIVE
-	page_table_dump_file = fopen("/home/ryanb/CA1/OS_CA1/data/page_table_dump.txt", "w");
+	page_table_dump_file = fopen("data/page_table_dump.txt", "w");
 
 	if(page_table_dump_file == NULL){
 		printf("ERROR LOADING PAGE TABLE DUMP FILE\nExiting...\n");
